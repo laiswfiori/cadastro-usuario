@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Receitas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>🍽️ Cadastro de Receitas</h1>
+
+    <!-- Criar receita -->
+    <section class="card">
+        <h2>➕ Criar Receita</h2>
+        <input type="text" id="nome" placeholder="Nome da Receita">
+        <textarea id="ingredientes" placeholder="Ingredientes (separe por vírgula)"></textarea>
+        <textarea id="modoPreparo" placeholder="Modo de Preparo"></textarea>
+        <input type="text" id="categoria" placeholder="Categoria (ex: sobremesa)">
+        <button onclick="criar()">Salvar Receita</button>
+    </section>
+
+    <!-- Buscar receita -->
+    <section class="card">
+        <h2>🔍 Buscar Receita</h2>
+        <input type="text" id="buscarNome" placeholder="Nome da Receita">
+        <button onclick="buscar()">Buscar</button>
+        <pre id="resultadoBuscar"></pre>
+    </section>
+
+    <!-- Deletar receita -->
+    <section class="card">
+        <h2>🗑️ Deletar Receita</h2>
+        <input type="text" id="deletarNome" placeholder="Nome da Receita">
+        <button onclick="deletar()">Deletar</button>
+    </section>
+
+    <!-- Atualizar receita -->
+    <section class="card">
+        <h2>✏️ Atualizar Receita</h2>
+        <input type="text" id="nomeAntigo" placeholder="Nome Atual da Receita">
+        <input type="text" id="novoNome" placeholder="Novo Nome da Receita">
+        <textarea id="novosIngredientes" placeholder="Novos Ingredientes"></textarea>
+        <textarea id="novoModoPreparo" placeholder="Novo Modo de Preparo"></textarea>
+        <input type="text" id="novaCategoria" placeholder="Nova Categoria">
+        <button onclick="atualizar()">Atualizar Receita</button>
+    </section>
+</div>
+
+<script>
+    const api = "/receitas";
+
+    async function criar() {
+        const resp = await fetch(api, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nome: document.getElementById("nome").value,
+                ingredientes: document.getElementById("ingredientes").value,
+                modoPreparo: document.getElementById("modoPreparo").value,
+                categoria: document.getElementById("categoria").value
+            })
+        });
+        alert(resp.ok ? "Receita criada!" : "Erro ao criar receita!");
+    }
+
+    async function buscar() {
+        const nome = encodeURIComponent(document.getElementById("buscarNome").value);
+        const resp = await fetch(`${api}/nome/${nome}`);
+        const resultado = document.getElementById("resultadoBuscar");
+
+        if (resp.ok) {
+            const data = await resp.json();
+            resultado.innerText = JSON.stringify(data, null, 2);
+        } else {
+            resultado.innerText = "Receita não encontrada!";
+        }
+    }
+
+    async function deletar() {
+        const nome = encodeURIComponent(document.getElementById("deletarNome").value);
+        const resp = await fetch(`${api}/nome/${nome}`, { method: "DELETE" });
+        alert(resp.ok ? "Receita deletada!" : "Erro ao deletar receita!");
+    }
+
+    async function atualizar() {
+        const nome = encodeURIComponent(document.getElementById("nomeAntigo").value);
+        const resp = await fetch(`${api}/nome/${nome}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nome: document.getElementById("novoNome").value,
+                ingredientes: document.getElementById("novosIngredientes").value,
+                modoPreparo: document.getElementById("novoModoPreparo").value,
+                categoria: document.getElementById("novaCategoria").value
+            })
+        });
+        alert(resp.ok ? "Receita atualizada!" : "Erro ao atualizar receita!");
+    }
+</script>
+
+</body>
+</html>
